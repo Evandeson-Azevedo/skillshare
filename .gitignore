@@ -1,0 +1,17 @@
+# Binary
+/skillshare
+/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test
+coverage.out
+.claude/

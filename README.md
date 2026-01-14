@@ -1,0 +1,151 @@
+# skillshare
+
+Share skills across AI CLI tools (Claude Code, Codex CLI, Cursor, Gemini CLI, OpenCode).
+
+## The Problem
+
+Each AI CLI tool has its own skills directory:
+
+```
+~/.claude/skills/
+~/.codex/skills/
+~/.cursor/skills/
+~/.gemini/antigravity/skills/
+~/.config/opencode/skills/
+```
+
+Keeping them in sync manually is tedious.
+
+## The Solution
+
+`skillshare` maintains a single source directory and symlinks it to all CLI tools:
+
+```
+~/.skills/           <- Your skills live here (single source of truth)
+    ├── my-skill/
+    └── another-skill/
+
+~/.claude/skills     -> ~/.skills (symlink)
+~/.codex/skills      -> ~/.skills (symlink)
+~/.cursor/skills     -> ~/.skills (symlink)
+...
+```
+
+## Installation
+
+### Using Go
+
+```bash
+go install github.com/runkids/skillshare/cmd/skillshare@latest
+```
+
+### Using Homebrew (macOS/Linux)
+
+```bash
+brew install runkids/tap/skillshare
+```
+
+### Download Binary
+
+Download from [Releases](https://github.com/runkids/skillshare/releases).
+
+## Quick Start
+
+```bash
+# 1. Initialize with default source directory (~/.skills)
+skillshare init
+
+# 2. Check detected targets
+skillshare status
+
+# 3. Sync (migrate existing skills + create symlinks)
+skillshare sync
+```
+
+## Usage
+
+### Initialize
+
+```bash
+# Use default source (~/.skills)
+skillshare init
+
+# Or specify custom source
+skillshare init --source ~/my-skills
+```
+
+This will:
+- Create the source directory
+- Detect installed CLI tools
+- Create config at `~/.config/skillshare/config.yaml`
+
+### Sync
+
+```bash
+# Preview what will happen
+skillshare sync --dry-run
+
+# Actually sync
+skillshare sync
+```
+
+On first sync, existing skills are **migrated** to the source directory, then symlinks are created.
+
+### Status
+
+```bash
+skillshare status
+```
+
+Shows:
+- Source directory and skill count
+- Each target's status (linked, has files, not exist, conflict)
+
+### Manage Targets
+
+```bash
+# List targets
+skillshare target list
+
+# Add custom target
+skillshare target add myapp ~/.myapp/skills
+
+# Remove target
+skillshare target remove myapp
+```
+
+## Configuration
+
+Config file: `~/.config/skillshare/config.yaml`
+
+```yaml
+source: ~/.skills
+mode: symlink
+targets:
+  claude:
+    path: ~/.claude/skills
+  codex:
+    path: ~/.codex/skills
+  cursor:
+    path: ~/.cursor/skills
+  gemini:
+    path: ~/.gemini/antigravity/skills
+  opencode:
+    path: ~/.config/opencode/skills
+ignore:
+  - "**/.DS_Store"
+  - "**/.git/**"
+```
+
+## How It Works
+
+1. **init**: Detects CLI tools and creates config
+2. **sync**:
+   - If target has files → migrate to source, then symlink
+   - If target is empty/missing → just create symlink
+   - If already linked → skip
+3. **status**: Check symlink health
+
+## License
+
+MIT
