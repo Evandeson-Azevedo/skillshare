@@ -426,15 +426,25 @@ func setupGitRemote(sourcePath, remoteURL string, dryRun bool) {
 	// Check if git is initialized
 	gitDir := filepath.Join(sourcePath, ".git")
 	if _, err := os.Stat(gitDir); os.IsNotExist(err) {
-		return // Git not initialized, skip remote setup
+		if remoteURL != "" {
+			ui.Warning("Git not initialized in source directory")
+			ui.Info("Run: cd %s && git init", sourcePath)
+		}
+		return
 	}
 
 	// Check if remote already exists
-	cmd := exec.Command("git", "remote")
+	cmd := exec.Command("git", "remote", "get-url", "origin")
 	cmd.Dir = sourcePath
 	output, err := cmd.Output()
 	if err == nil && strings.TrimSpace(string(output)) != "" {
-		// Remote already configured
+		existingRemote := strings.TrimSpace(string(output))
+		if existingRemote == remoteURL {
+			ui.Info("Git remote already configured: %s", existingRemote)
+		} else {
+			ui.Warning("Git remote already exists: %s", existingRemote)
+			ui.Info("To change: git remote set-url origin %s", remoteURL)
+		}
 		return
 	}
 

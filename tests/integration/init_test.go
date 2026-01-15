@@ -226,3 +226,56 @@ targets: {}
 		t.Error("dry-run should not add remote")
 	}
 }
+
+func TestInit_AlreadyInitialized_RemoteFlag_AlreadyExists(t *testing.T) {
+	sb := testutil.NewSandbox(t)
+	defer sb.Cleanup()
+
+	sb.WriteConfig(`source: ` + sb.SourcePath + `
+targets: {}
+`)
+
+	// Initialize git with existing remote
+	cmd := exec.Command("git", "init")
+	cmd.Dir = sb.SourcePath
+	if err := cmd.Run(); err != nil {
+		t.Skip("git not available")
+	}
+
+	cmd = exec.Command("git", "remote", "add", "origin", "git@github.com:existing/repo.git")
+	cmd.Dir = sb.SourcePath
+	cmd.Run()
+
+	// Try to add different remote
+	result := sb.RunCLI("init", "--remote", "git@github.com:new/repo.git")
+
+	result.AssertSuccess(t)
+	result.AssertOutputContains(t, "already exists")
+	result.AssertOutputContains(t, "git remote set-url")
+}
+
+func TestInit_AlreadyInitialized_RemoteFlag_SameRemote(t *testing.T) {
+	sb := testutil.NewSandbox(t)
+	defer sb.Cleanup()
+
+	sb.WriteConfig(`source: ` + sb.SourcePath + `
+targets: {}
+`)
+
+	// Initialize git with existing remote
+	cmd := exec.Command("git", "init")
+	cmd.Dir = sb.SourcePath
+	if err := cmd.Run(); err != nil {
+		t.Skip("git not available")
+	}
+
+	cmd = exec.Command("git", "remote", "add", "origin", "git@github.com:test/skills.git")
+	cmd.Dir = sb.SourcePath
+	cmd.Run()
+
+	// Try to add same remote
+	result := sb.RunCLI("init", "--remote", "git@github.com:test/skills.git")
+
+	result.AssertSuccess(t)
+	result.AssertOutputContains(t, "already configured")
+}
