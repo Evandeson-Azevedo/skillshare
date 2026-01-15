@@ -42,6 +42,7 @@ skillshare pull claude && skillshare sync  # Pull from Claude → sync to all
 | What makes it different | |
 |-------------------------|---|
 | 🔄 Bidirectional sync | `pull` from any target, `sync` to all |
+| 🌐 Cross-machine sync | `push` / `pull --remote` via git |
 | 💾 Backup & restore | Automatic before sync, restore anytime |
 | 🔍 Diagnostics | `doctor` checks git, broken links, duplicates |
 | 🤖 AI-native | Built-in skill lets your AI manage everything |
@@ -142,6 +143,8 @@ Done! Your skills are now synced across all AI CLI tools.
 | `status` | Show source, targets, and sync state |
 | `diff` | Show differences between source and targets |
 | `pull` | Pull skills from target back to source |
+| `pull --remote` | Pull from git remote and sync to all targets |
+| `push` | Commit and push skills to git remote |
 | `backup` | Manually backup targets |
 | `restore` | Restore from backup |
 | `doctor` | Diagnose configuration issues |
@@ -171,6 +174,7 @@ Jump to a section:
 - [Dry Run](#dry-run)
 - [Sync Modes](#sync-modes)
 - [Backup & Restore](#backup--restore)
+- [Cross-Machine Sync](#cross-machine-sync)
 - [Configuration](#configuration)
 - [FAQ](#faq)
 - [Common Issues](#common-issues)
@@ -407,6 +411,66 @@ skillshare restore claude --from 2026-01-14_21-22-18  # Specific backup
 
 > **Note:** In `symlink` mode, backups are skipped (no local data to backup).
 
+## Cross-Machine Sync
+
+Sync your skills across multiple computers using git.
+
+```
+┌─────────────────┐                      ┌─────────────────┐
+│   Machine A     │                      │   Machine B     │
+│                 │    skillshare push   │                 │
+│  Claude/Codex   │ ─────────────────►   │  Claude/Cursor  │
+│   ↕ symlink     │                      │   ↕ symlink     │
+│  source/skills  │   ┌───────────┐      │  source/skills  │
+│        │        │   │  GitHub   │      │        │        │
+│        └────────┼──►│  Remote   │◄─────┼────────┘        │
+│                 │   └───────────┘      │                 │
+│                 │ ◄─────────────────── │                 │
+│                 │  skillshare pull     │                 │
+│                 │     --remote         │                 │
+└─────────────────┘                      └─────────────────┘
+```
+
+### Setup
+
+```bash
+# New setup with remote
+skillshare init --remote git@github.com:you/my-skills.git
+
+# Or add remote to existing setup
+cd ~/.config/skillshare/skills
+git remote add origin git@github.com:you/my-skills.git
+```
+
+### Daily Workflow
+
+```bash
+# Push changes to remote (git add + commit + push)
+skillshare push
+skillshare push -m "Add new skill"   # Custom message
+
+# Pull from remote and sync to all targets
+skillshare pull --remote
+```
+
+### Second Machine Setup
+
+```bash
+# Clone your skills repo
+git clone git@github.com:you/my-skills.git ~/.config/skillshare/skills
+
+# Initialize skillshare with existing source
+skillshare init --source ~/.config/skillshare/skills
+
+# Sync to all local targets
+skillshare sync
+```
+
+### Conflict Handling
+
+- `push` fails if remote is ahead → run `pull --remote` first
+- `pull --remote` refuses if local has uncommitted changes → run `push` first
+
 ## Configuration
 
 Config file: `~/.config/skillshare/config.yaml`
@@ -439,17 +503,7 @@ Yes. Use `skillshare target add <name> <path>` with the tool's skills directory.
 
 **How do I sync across multiple machines?**
 
-```bash
-# Machine A: Push to remote
-cd ~/.config/skillshare/skills
-git remote add origin git@github.com:you/my-skills.git
-git push -u origin main
-
-# Machine B: Clone and init
-git clone git@github.com:you/my-skills.git ~/.config/skillshare/skills
-skillshare init --source ~/.config/skillshare/skills
-skillshare sync
-```
+See [Cross-Machine Sync](#cross-machine-sync) section.
 
 **What happens if I modify a skill in the target directory?**
 

@@ -44,6 +44,9 @@ Map user intents to command sequences:
 | "sync but show me first" | `skillshare sync --dry-run`, then `skillshare sync` if approved |
 | "pull from Claude and sync" | `skillshare pull claude` then `skillshare sync` |
 | "pull all and sync everywhere" | `skillshare pull --all` then `skillshare sync` |
+| "pull from remote/other machine" | `skillshare pull --remote` (git pull + sync) |
+| "push to remote/backup" | `skillshare push` (git commit + push) |
+| "sync across machines" | `skillshare push` on machine A, `skillshare pull --remote` on B |
 | "show status" / "what's the state" | `skillshare status` |
 | "show differences" | `skillshare diff` |
 | "what skills do I have" | `skillshare list` (or `skillshare list --verbose`) |
@@ -100,14 +103,25 @@ skillshare sync --dry-run      # Preview only
 
 skillshare pull claude         # Pull from specific target
 skillshare pull --all          # Pull from all targets
-skillshare pull --all -n       # Preview pull
+skillshare pull --remote       # Pull from git remote + sync all
 ```
 
-**Workflow:**
+### Push (Cross-Machine Sync)
+
+```bash
+skillshare push                # Git add, commit, push
+skillshare push -m "message"   # Custom commit message
+skillshare push --dry-run      # Preview only
+```
+
+**Local workflow:**
 1. Create skill in any target (e.g., `~/.claude/skills/my-skill/`)
 2. `skillshare pull claude` - bring to source
 3. `skillshare sync` - distribute to all targets
-4. Commit: `cd ~/.config/skillshare/skills && git add . && git commit`
+
+**Cross-machine workflow:**
+1. Machine A: `skillshare push` - commit and push to remote
+2. Machine B: `skillshare pull --remote` - pull from remote + sync to all targets
 
 ### Install & Uninstall
 
@@ -199,10 +213,14 @@ skillshare sync            # Apply fix
 ### Git Workflow Recommendations
 After any skill changes, remind user:
 ```bash
+skillshare push                    # Simple: commit and push in one command
+skillshare push -m "Add new skill" # With custom message
+```
+
+Or manually:
+```bash
 cd ~/.config/skillshare/skills
-git add .
-git commit -m "Add/update skills"
-git push  # If using remote
+git add . && git commit -m "Add/update skills" && git push
 ```
 
 ### Creating New Skills

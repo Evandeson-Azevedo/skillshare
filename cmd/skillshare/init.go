@@ -22,6 +22,7 @@ func cmdInit(args []string) error {
 		return fmt.Errorf("cannot determine home directory: %w", err)
 	}
 	sourcePath := "" // Will be determined
+	remoteURL := ""
 	dryRun := false
 
 	// Parse args
@@ -32,6 +33,12 @@ func cmdInit(args []string) error {
 				return fmt.Errorf("--source requires a path argument")
 			}
 			sourcePath = args[i+1]
+			i++
+		case "--remote":
+			if i+1 >= len(args) {
+				return fmt.Errorf("--remote requires a URL argument")
+			}
+			remoteURL = args[i+1]
 			i++
 		case "--dry-run", "-n":
 			dryRun = true
@@ -109,6 +116,9 @@ func cmdInit(args []string) error {
 
 	// Initialize git in source directory for safety
 	initGitIfNeeded(sourcePath, dryRun)
+
+	// Set up git remote for cross-machine sync
+	setupGitRemote(sourcePath, remoteURL, dryRun)
 
 	// Create default skillshare skill
 	createDefaultSkill(sourcePath, dryRun)
@@ -401,7 +411,76 @@ func initGitIfNeeded(sourcePath string, dryRun bool) {
 	} else {
 		ui.Success("Git initialized (empty repository)")
 	}
-	ui.Info("Push to a remote repo for backup: git remote add origin <url>")
+}
+
+func setupGitRemote(sourcePath, remoteURL string, dryRun bool) {
+	// Check if git is initialized
+	gitDir := filepath.Join(sourcePath, ".git")
+	if _, err := os.Stat(gitDir); os.IsNotExist(err) {
+		return // Git not initialized, skip remote setup
+	}
+
+	// Check if remote already exists
+	cmd := exec.Command("git", "remote")
+	cmd.Dir = sourcePath
+	output, err := cmd.Output()
+	if err == nil && strings.TrimSpace(string(output)) != "" {
+		// Remote already configured
+		return
+	}
+
+	// If --remote flag provided, use it directly
+	if remoteURL != "" {
+		if dryRun {
+			ui.Info("Would add git remote: %s", remoteURL)
+			return
+		}
+		addRemote(sourcePath, remoteURL)
+		return
+	}
+
+	// Prompt user
+	ui.Header("Cross-machine sync")
+	fmt.Println("  Set up a git remote to sync skills across machines.")
+	fmt.Println()
+	fmt.Print("  Set up git remote? [y/N]: ")
+	var input string
+	fmt.Scanln(&input)
+	input = strings.ToLower(strings.TrimSpace(input))
+
+	if input != "y" && input != "yes" {
+		ui.Info("Skipped remote setup")
+		ui.Info("Add later: git remote add origin <url>")
+		return
+	}
+
+	fmt.Print("  Remote URL (e.g., git@github.com:user/skills.git): ")
+	fmt.Scanln(&remoteURL)
+	remoteURL = strings.TrimSpace(remoteURL)
+
+	if remoteURL == "" {
+		ui.Info("No URL provided, skipped remote setup")
+		return
+	}
+
+	if dryRun {
+		ui.Info("Would add git remote: %s", remoteURL)
+		return
+	}
+
+	addRemote(sourcePath, remoteURL)
+}
+
+func addRemote(sourcePath, remoteURL string) {
+	cmd := exec.Command("git", "remote", "add", "origin", remoteURL)
+	cmd.Dir = sourcePath
+	if err := cmd.Run(); err != nil {
+		ui.Warning("Failed to add remote: %v", err)
+		return
+	}
+
+	ui.Success("Git remote configured: %s", remoteURL)
+	ui.Info("Push your skills: skillshare push")
 }
 
 const fallbackSkillContent = `---

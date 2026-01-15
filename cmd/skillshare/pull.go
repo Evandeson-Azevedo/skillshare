@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -15,6 +16,7 @@ func cmdPull(args []string) error {
 	dryRun := false
 	force := false
 	pullAll := false
+	pullRemote := false
 	var targetName string
 
 	for _, arg := range args {
@@ -25,6 +27,8 @@ func cmdPull(args []string) error {
 			force = true
 		case "--all", "-a":
 			pullAll = true
+		case "--remote", "-r":
+			pullRemote = true
 		default:
 			if targetName == "" && !strings.HasPrefix(arg, "-") {
 				targetName = arg
@@ -35,6 +39,11 @@ func cmdPull(args []string) error {
 	cfg, err := config.Load()
 	if err != nil {
 		return err
+	}
+
+	// Handle --remote: pull from git remote and sync
+	if pullRemote {
+		return pullFromRemote(cfg, dryRun)
 	}
 
 	// Select targets to pull from
@@ -164,4 +173,65 @@ func showPullNextSteps(source string) {
 	if _, err := os.Stat(gitDir); err == nil {
 		ui.Info("Commit changes: cd %s && git add . && git commit", source)
 	}
+}
+
+// pullFromRemote pulls from git remote and syncs to all targets
+func pullFromRemote(cfg *config.Config, dryRun bool) error {
+	ui.Header("Pulling from remote")
+
+	// Check if source is a git repo
+	gitDir := filepath.Join(cfg.Source, ".git")
+	if _, err := os.Stat(gitDir); os.IsNotExist(err) {
+		ui.Error("Source is not a git repository")
+		ui.Info("  Run: cd %s && git init", cfg.Source)
+		return nil
+	}
+
+	// Check if remote exists
+	cmd := exec.Command("git", "remote")
+	cmd.Dir = cfg.Source
+	output, err := cmd.Output()
+	if err != nil || strings.TrimSpace(string(output)) == "" {
+		ui.Error("No git remote configured")
+		ui.Info("  Run: cd %s && git remote add origin <url>", cfg.Source)
+		return nil
+	}
+
+	// Check for uncommitted changes
+	cmd = exec.Command("git", "status", "--porcelain")
+	cmd.Dir = cfg.Source
+	output, err = cmd.Output()
+	if err != nil {
+		return fmt.Errorf("failed to check git status: %w", err)
+	}
+
+	if len(strings.TrimSpace(string(output))) > 0 {
+		ui.Error("Local changes detected - commit or stash first")
+		ui.Info("  Run: skillshare push")
+		ui.Info("  Or:  cd %s && git stash", cfg.Source)
+		return nil
+	}
+
+	if dryRun {
+		ui.Warning("[dry-run] No changes will be made")
+		fmt.Println()
+		ui.Info("Would run: git pull")
+		ui.Info("Would run: skillshare sync")
+		return nil
+	}
+
+	// Git pull
+	ui.Info("Running git pull...")
+	cmd = exec.Command("git", "pull")
+	cmd.Dir = cfg.Source
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("git pull failed: %w", err)
+	}
+
+	// Sync to all targets
+	fmt.Println()
+	ui.Info("Syncing to all targets...")
+	return cmdSync([]string{})
 }

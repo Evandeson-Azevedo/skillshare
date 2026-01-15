@@ -40,6 +40,8 @@ func main() {
 		err = cmdRestore(args)
 	case "pull":
 		err = cmdPull(args)
+	case "push":
+		err = cmdPush(args)
 	case "doctor":
 		err = cmdDoctor(args)
 	case "target":
@@ -69,7 +71,7 @@ Usage:
   skillshare <command> [options]
 
 Commands:
-  init [--source PATH] [--dry-run] Initialize skillshare with a source directory
+  init [--source PATH] [--remote URL] [--dry-run] Initialize skillshare
   install <source> [--dry-run]      Install a skill from local path or git repo
   uninstall <name> [--force]        Remove a skill from source directory
   list [--verbose]                  List all installed skills
@@ -83,6 +85,8 @@ Commands:
   restore <target> --from TS [--force] [--dry-run] Restore target from specific backup
   pull [target] [--dry-run]         Pull local skills from target(s) to source
   pull --all [--dry-run]            Pull from all targets
+  pull --remote [--dry-run]         Pull from git remote and sync to all targets
+  push [-m MSG] [--dry-run]         Commit and push skills to git remote
   doctor                            Check environment and diagnose issues
   target <name>                     Show target info
   target <name> --mode MODE         Set target sync mode (merge|symlink)
