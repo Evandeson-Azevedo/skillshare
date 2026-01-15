@@ -141,6 +141,7 @@ Done! Your skills are now synced across all AI CLI tools.
 | `restore` | Restore from backup |
 | `doctor` | Diagnose configuration issues |
 | `target` | Manage targets (add/remove/list/mode) |
+| `update` | Update built-in skillshare skill from GitHub |
 
 ---
 
@@ -151,6 +152,7 @@ Jump to a section:
 - [Install Skills](#install-skills)
 - [Uninstall Skills](#uninstall-skills)
 - [List Skills](#list-skills)
+- [Update Built-in Skill](#update-built-in-skill)
 - [Dry Run](#dry-run)
 - [Sync Modes](#sync-modes)
 - [Backup & Restore](#backup--restore)
@@ -259,6 +261,20 @@ Installed skills
   composio-skills            github.com/ComposioHQ/awesome-claude-skills
 ```
 
+## Update Built-in Skill
+
+Update the built-in `skillshare` skill to the latest version from GitHub. This skill enables AI-driven management of your skills.
+
+```bash
+skillshare update              # Update skillshare skill
+skillshare update --force      # Skip confirmation
+skillshare update --dry-run    # Preview without updating
+```
+
+The skill is downloaded from the [skillshare repository](https://github.com/runkids/skillshare/tree/main/skills/skillshare) and includes AI behavior guides, command references, and troubleshooting tips.
+
+After updating, run `skillshare sync` to distribute to all targets.
+
 ## Dry Run
 
 Preview changes without modifying files. Supported commands:
@@ -286,6 +302,8 @@ skillshare restore claude --from 2026-01-14_21-22-18 -n  # Preview restore from 
 
 skillshare target remove claude -n     # Preview unlink
 skillshare target remove --all -n      # Preview unlink all
+
+skillshare update -n                   # Preview skill update
 ```
 
 ## Sync Modes

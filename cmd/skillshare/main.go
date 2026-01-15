@@ -44,6 +44,8 @@ func main() {
 		err = cmdDoctor(args)
 	case "target":
 		err = cmdTarget(args)
+	case "update":
+		err = cmdUpdate(args)
 	case "version", "-v", "--version":
 		fmt.Printf("skillshare %s\n", version)
 	case "help", "-h", "--help":
@@ -88,6 +90,7 @@ Commands:
   target remove <name> [--dry-run]  Unlink target and restore skills
   target remove --all [--dry-run]   Unlink all targets
   target list                       List all targets
+  update [--force] [--dry-run]      Update built-in skillshare skill from GitHub
   version                           Show version
   help                              Show this help
 

@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,6 +13,8 @@ import (
 	"skillshare/internal/ui"
 	"skillshare/internal/utils"
 )
+
+const skillshareSkillURL = "https://raw.githubusercontent.com/runkids/skillshare/main/skills/skillshare/SKILL.md"
 
 func cmdInit(args []string) error {
 	home, err := os.UserHomeDir()
@@ -119,7 +123,13 @@ func cmdInit(args []string) error {
 	ui.Header("Initialized successfully")
 	ui.Success("Source: %s", sourcePath)
 	ui.Success("Config: %s", config.ConfigPath())
-	ui.Info("Run 'skillshare sync' to sync your skills")
+	fmt.Println()
+	ui.Info("Next steps:")
+	fmt.Println("  skillshare sync              # Sync to all targets")
+	fmt.Println()
+	ui.Info("Pro tip: Let AI manage your skills!")
+	fmt.Println("  \"Pull my new skill from Claude and sync to all targets\"")
+	fmt.Println("  \"Show me skillshare status\"")
 
 	return nil
 }
@@ -394,6 +404,23 @@ func initGitIfNeeded(sourcePath string, dryRun bool) {
 	ui.Info("Push to a remote repo for backup: git remote add origin <url>")
 }
 
+const fallbackSkillContent = `---
+name: skillshare
+description: Manage and sync skills across AI CLI tools
+---
+
+# Skillshare CLI
+
+Run ` + "`skillshare update`" + ` to download the full skill with AI integration guide.
+
+## Quick Commands
+
+- ` + "`skillshare status`" + ` - Show sync state
+- ` + "`skillshare sync`" + ` - Sync to all targets
+- ` + "`skillshare pull <target>`" + ` - Pull from target
+- ` + "`skillshare update`" + ` - Update this skill
+`
+
 func createDefaultSkill(sourcePath string, dryRun bool) {
 	skillshareSkillDir := filepath.Join(sourcePath, "skillshare")
 	skillshareSkillFile := filepath.Join(skillshareSkillDir, "SKILL.md")
@@ -403,7 +430,7 @@ func createDefaultSkill(sourcePath string, dryRun bool) {
 	}
 
 	if dryRun {
-		ui.Info("Would create default skill: skillshare")
+		ui.Info("Would download default skill: skillshare")
 		return
 	}
 
@@ -411,71 +438,35 @@ func createDefaultSkill(sourcePath string, dryRun bool) {
 		return
 	}
 
-	skillContent := `---
-name: skillshare
-description: Manage and sync skills across AI CLI tools
----
-
-# Skillshare CLI
-
-Use skillshare to manage skills shared across multiple AI CLI tools.
-
-## Commands
-
-### Check Status
-` + "```bash" + `
-skillshare status
-` + "```" + `
-Shows source directory, skill count, and sync state for all targets.
-
-### Sync Skills
-` + "```bash" + `
-skillshare sync           # Sync all targets
-skillshare sync --dry-run # Preview changes
-` + "```" + `
-Pushes skills from source to all configured targets.
-
-### Pull Local Skills
-` + "```bash" + `
-skillshare pull claude    # Pull from specific target
-skillshare pull --all     # Pull from all targets
-` + "```" + `
-Copies skills created in target directories back to source.
-
-### View Differences
-` + "```bash" + `
-skillshare diff           # All targets
-skillshare diff claude    # Specific target
-` + "```" + `
-
-### Manage Targets
-` + "```bash" + `
-skillshare target list              # List all targets
-skillshare target add myapp ~/path  # Add custom target
-skillshare target remove myapp      # Remove target
-` + "```" + `
-
-### Backup & Restore
-` + "```bash" + `
-skillshare backup --list    # List backups
-skillshare backup --cleanup # Clean old backups
-skillshare restore claude   # Restore from backup
-` + "```" + `
-
-## Typical Workflow
-
-1. Create/edit skills in any target directory (e.g., ~/.claude/skills/)
-2. Run ` + "`skillshare pull`" + ` to bring changes to source
-3. Run ` + "`skillshare sync`" + ` to distribute to all targets
-4. Commit changes: ` + "`cd ~/.config/skillshare/skills && git add . && git commit`" + `
-
-## Tips
-
-- Source directory: ~/.config/skillshare/skills
-- Config file: ~/.config/skillshare/config.yaml
-- Use ` + "`skillshare doctor`" + ` to diagnose issues
-`
-	if err := os.WriteFile(skillshareSkillFile, []byte(skillContent), 0644); err == nil {
+	// Try to download from GitHub
+	if err := downloadSkillshareSkill(skillshareSkillFile); err != nil {
+		// Fallback to minimal version
+		if err := os.WriteFile(skillshareSkillFile, []byte(fallbackSkillContent), 0644); err != nil {
+			ui.Warning("Failed to create skillshare skill: %v", err)
+			return
+		}
 		ui.Success("Created default skill: skillshare")
+		ui.Info("Run 'skillshare update' to get the full version")
+		return
 	}
+	ui.Success("Downloaded default skill: skillshare")
+}
+
+func downloadSkillshareSkill(destPath string) error {
+	resp, err := http.Get(skillshareSkillURL)
+	if err != nil {
+		return fmt.Errorf("failed to fetch: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("HTTP %d", resp.StatusCode)
+	}
+
+	content, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	return os.WriteFile(destPath, content, 0644)
 }
