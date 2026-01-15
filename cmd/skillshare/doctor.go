@@ -365,6 +365,8 @@ func checkDuplicateSkills(cfg *config.Config) int {
 	if len(duplicates) > 0 {
 		sort.Strings(duplicates)
 		ui.Warning("Duplicate skills: %s", strings.Join(duplicates, "; "))
+		ui.Info("  These skills exist in both source and target as separate copies.")
+		ui.Info("  Run 'skillshare sync' to replace target copies with symlinks.")
 	}
 
 	return 0 // Warning only

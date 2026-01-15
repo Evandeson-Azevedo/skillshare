@@ -29,20 +29,43 @@
   <a href="#common-issues">Common Issues</a>
 </p>
 
-## Highlights
+## Why skillshare?
 
-- One source of truth for skills across CLI tools.
-- Auto-detects installed targets and bootstraps git.
-- Choose `merge` or `symlink` sync modes.
-- Automatic backups + restores protect local skills.
-- Built-in `skillshare` skill enables AI-driven sync.
+Other tools install skills. **skillshare manages the entire lifecycle.**
+
+| Feature | skillshare | Others |
+|---------|:----------:|:------:|
+| Install from GitHub | ✅ | ✅ |
+| **Bidirectional sync** (pull + push) | ✅ | ❌ |
+| **Backup & restore** | ✅ | ❌ |
+| **Diff between source & targets** | ✅ | ❌ |
+| **Comprehensive diagnostics** | ✅ | ❌ |
+| Single binary (no Node.js) | ✅ | ❌ |
+| Interactive multi-select | ✅ | ❌ |
+| AI-driven management | ✅ | ❌ |
+
+**The problem:** You create a skill in Claude, but need it in Cursor, Codex, and Gemini too. Manually copying? Tedious. What if you update it? Copy again.
+
+**The solution:** skillshare maintains a single source of truth. Create once, sync everywhere. Edit anywhere, pull back, sync again.
+
+```bash
+# Create skill in Claude → pull to source → sync to all
+skillshare pull claude && skillshare sync
+```
 
 > [!TIP]
 > **Let your AI manage skills for you.** After syncing, tell your AI:
 >
 > *"I just created a new skill in Claude Code. Pull it to source and sync to all targets."*
 >
-> No manual copying needed — the `skillshare` skill handles everything.
+> No manual copying needed — the built-in `skillshare` skill handles everything.
+
+### Key Features
+
+- 🔄 **Bidirectional sync** — `pull` from any target, `sync` to all
+- 💾 **Automatic backups** — restore anytime with `skillshare restore`
+- 🔍 **Smart diagnostics** — `doctor` checks git status, broken links, duplicates
+- 🤖 **AI-native** — built-in skill lets your AI manage everything
 
 ## Installation
 
