@@ -209,6 +209,10 @@ skillshare target remove myapp                # Remove target
 
 ## FAQ
 
+**Isn't this just `ln -s`?**
+
+Yes, at its core. But skillshare handles multi-target detection, backup/restore, merge mode, cross-device sync, and broken symlink recovery — so you don't have to.
+
 **Can I sync skills to a custom or uncommon tool?**
 
 Yes. Use `skillshare target add <name> <path>` with the tool's skills directory.
