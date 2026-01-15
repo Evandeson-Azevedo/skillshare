@@ -52,6 +52,15 @@ func cmdInit(args []string) error {
 
 	// Check if already initialized
 	if _, err := os.Stat(config.ConfigPath()); err == nil {
+		// If --remote provided, just add the remote to existing setup
+		if remoteURL != "" {
+			cfg, err := config.Load()
+			if err != nil {
+				return err
+			}
+			setupGitRemote(cfg.Source, remoteURL, dryRun)
+			return nil
+		}
 		return fmt.Errorf("already initialized. Config at: %s", config.ConfigPath())
 	}
 
