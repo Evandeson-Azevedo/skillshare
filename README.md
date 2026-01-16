@@ -47,8 +47,33 @@ skillshare pull claude && skillshare sync  # Pull from Claude → sync to all
 | 🔍 Diagnostics | `doctor` checks git, broken links, duplicates |
 | 🤖 AI-native | Built-in skill lets your AI manage everything |
 
+## AI-Native Execution
+
+The built-in [`skillshare` skill](https://github.com/runkids/skillshare/tree/main/skills/skillshare) enables your AI CLI to manage skills directly — **no manual installation required**.
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  User: "sync my skills to all targets"                      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  AI reads skillshare skill                                  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│  skillshare sync                                            │
+│  ✓ Synced 5 skills to claude, codex, cursor                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
 > [!TIP]
-> **Let your AI manage skills.** Just say: *"Pull my new skill from Claude and sync to all targets."*
+> The skill automatically downloads the binary on first use — just say:
+> - *"Show my skillshare status"*
+> - *"Sync my skills to all targets"*
+> - *"Pull skills from Claude and sync everywhere"*
+> - *"Install the pdf skill from anthropics/skills"*
 
 ## Installation
 
@@ -58,7 +83,7 @@ skillshare pull claude && skillshare sync  # Pull from Claude → sync to all
 curl -fsSL https://raw.githubusercontent.com/runkids/skillshare/main/install.sh | sh
 ```
 
-Works on macOS and Linux. Automatically detects your system and installs the latest version.
+Installs to `/usr/local/bin/`. Works on macOS and Linux.
 
 ### Homebrew (macOS)
 

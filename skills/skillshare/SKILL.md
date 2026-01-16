@@ -1,6 +1,6 @@
 ---
 name: skillshare
-version: 0.4.0
+version: 0.5.0
 description: Manage and sync skills across AI CLI tools. Use when asked to "sync my skills", "pull skills", "show skillshare status", "list my skills", "install a skill", "create a new skill", "backup skills", or manage skill targets.
 argument-hint: "[command] [target] [--dry-run]"
 ---
@@ -8,6 +8,35 @@ argument-hint: "[command] [target] [--dry-run]"
 # Skillshare CLI
 
 Manage and sync skills across multiple AI CLI tools from a single source of truth.
+
+## Zero-Install Execution
+
+**IMPORTANT:** Before running any `skillshare` command, use this runner function to ensure skillshare is available (downloads to cache if not installed):
+
+```bash
+skillshare_run() {
+  if command -v skillshare >/dev/null 2>&1; then
+    skillshare "$@"
+  elif [ -x "${XDG_CACHE_HOME:-$HOME/.cache}/skillshare/bin/skillshare" ]; then
+    "${XDG_CACHE_HOME:-$HOME/.cache}/skillshare/bin/skillshare" "$@"
+  else
+    curl -fsSL https://raw.githubusercontent.com/runkids/skillshare/main/run.sh | sh -s -- "$@"
+  fi
+}
+```
+
+Use `skillshare_run` instead of `skillshare` for all commands. Example:
+
+```bash
+skillshare_run status
+skillshare_run sync --dry-run
+```
+
+Or run directly without defining the function:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/runkids/skillshare/main/run.sh | sh -s -- status
+```
 
 ## When to Use This Skill
 
