@@ -28,17 +28,22 @@ func DefaultTargets() map[string]TargetConfig {
 	home, _ := os.UserHomeDir()
 	return map[string]TargetConfig{
 		"agents":      {Path: filepath.Join(home, ".config", "agents", "skills")}, // Global, portable across AI coding agents
-		"amp":         {Path: filepath.Join(home, ".amp", "skills")},
+		"amp":         {Path: filepath.Join(home, ".config", "agents", "skills")}, // Same as agents for backward compatibility
 		"antigravity": {Path: filepath.Join(home, ".gemini", "antigravity", "skills")},
+		"clawdbot":    {Path: filepath.Join(home, ".clawdbot", "skills")},
 		"claude":      {Path: filepath.Join(home, ".claude", "skills")},
 		"codex":       {Path: filepath.Join(home, ".codex", "skills")},
 		"copilot":     {Path: filepath.Join(home, ".copilot", "skills")},
 		"crush":       {Path: filepath.Join(home, ".config", "crush", "skills")},
 		"cursor":      {Path: filepath.Join(home, ".cursor", "skills")},
+		"droid":       {Path: filepath.Join(home, ".factory", "skills")},
 		"gemini":      {Path: filepath.Join(home, ".gemini", "skills")},
 		"goose":       {Path: filepath.Join(home, ".config", "goose", "skills")},
+		"kilocode":    {Path: filepath.Join(home, ".kilocode", "skills")},
 		"letta":       {Path: filepath.Join(home, ".letta", "skills")},
 		"opencode":    {Path: filepath.Join(home, ".config", "opencode", "skills")},
+		"roo":         {Path: filepath.Join(home, ".roo", "skills")},
+		"windsurf":    {Path: filepath.Join(home, ".codeium", "windsurf", "skills")},
 	}
 }
 

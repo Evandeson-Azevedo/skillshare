@@ -10,15 +10,21 @@ Targets are AI CLI skill directories that skillshare syncs to.
 │                                                                  │
 │   Built-in (auto-detected):                                      │
 │   ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐    │
-│   │  Amp    │ │ Claude  │ │ Codex   │ │ Cursor  │ │ Gemini  │    │
+│   │ Agents  │ │  Amp    │ │Clawdbot │ │ Claude  │ │ Codex   │    │
 │   └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘    │
-│   ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────────┐ ┌─────────┐  │
-│   │ Copilot │ │  Goose  │ │  Letta  │ │Antigravity│ │OpenCode │  │
-│   └─────────┘ └─────────┘ └─────────┘ └───────────┘ └─────────┘  │
+│   ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐    │
+│   │ Copilot │ │  Crush  │ │ Cursor  │ │  Droid  │ │ Gemini  │    │
+│   └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘    │
+│   ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐    │
+│   │  Goose  │ │Kilocode │ │  Letta  │ │OpenCode │ │   Roo   │    │
+│   └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘    │
+│   ┌───────────┐ ┌─────────┐                                      │
+│   │Antigravity│ │Windsurf │                                      │
+│   └───────────┘ └─────────┘                                      │
 │                                                                  │
 │   Custom (add your own):                                         │
 │   ┌─────────┐ ┌─────────┐ ┌─────────┐                            │
-│   │Windsurf │ │  Aider  │ │   ...   │                            │
+│   │  Aider  │ │   ...   │ │         │                            │
 │   └─────────┘ └─────────┘ └─────────┘                            │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -90,9 +96,6 @@ skillshare target add <name> <path>
 ### Examples
 
 ```bash
-# Add Windsurf
-skillshare target add windsurf ~/.windsurf/skills
-
 # Add Aider
 skillshare target add aider ~/.aider/skills
 
