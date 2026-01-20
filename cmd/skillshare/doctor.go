@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -72,7 +73,10 @@ func cmdDoctor(args []string) error {
 	// Check backup status
 	checkBackupStatus()
 
-	// Check for updates
+	// Check skill version
+	checkSkillVersionDoctor(cfg)
+
+	// Check for CLI updates
 	checkForUpdates()
 
 	// Summary
@@ -434,6 +438,45 @@ func checkBackupStatus() {
 		}
 		ui.Info("Backups: last backup %s (%s)", latest, ageStr)
 	}
+}
+
+// checkSkillVersionDoctor checks the skillshare skill version
+func checkSkillVersionDoctor(cfg *config.Config) {
+	skillFile := filepath.Join(cfg.Source, "skillshare", "SKILL.md")
+
+	// Read local version
+	file, err := os.Open(skillFile)
+	if err != nil {
+		ui.Warning("Skill: skillshare skill not found")
+		ui.Info("  Run: skillshare upgrade --skill")
+		return
+	}
+	defer file.Close()
+
+	var localVersion string
+	scanner := bufio.NewScanner(file)
+	inFrontmatter := false
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "---" {
+			if !inFrontmatter {
+				inFrontmatter = true
+				continue
+			}
+			break
+		}
+		if inFrontmatter && strings.HasPrefix(line, "version:") {
+			localVersion = strings.TrimSpace(strings.TrimPrefix(line, "version:"))
+			break
+		}
+	}
+
+	if localVersion == "" {
+		ui.Warning("Skill: skillshare skill missing version")
+		return
+	}
+
+	ui.Success("Skill: skillshare %s", localVersion)
 }
 
 // checkForUpdates checks if a newer version is available

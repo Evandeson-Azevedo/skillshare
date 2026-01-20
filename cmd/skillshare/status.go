@@ -153,23 +153,28 @@ func checkSkillVersion(cfg *config.Config) {
 
 	if localVersion == "" {
 		// No skill or no version - suggest update
-		ui.Header("Skill Update")
+		ui.Header("Skill Version")
 		ui.Warning("skillshare skill not found or missing version")
-		ui.Info("Run: skillshare update")
+		ui.Info("Run: skillshare upgrade --skill")
 		return
 	}
 
 	// Fetch remote version (with short timeout)
 	remoteVersion := fetchRemoteSkillVersion()
 	if remoteVersion == "" {
-		return // Network error, skip check silently
+		// Network error - just show local version
+		ui.Header("Skill Version")
+		ui.Info("skillshare skill: %s", localVersion)
+		return
 	}
 
 	// Compare local vs remote
+	ui.Header("Skill Version")
 	if localVersion != remoteVersion {
-		ui.Header("Skill Update")
-		ui.Warning("skillshare skill update available (%s → %s)", localVersion, remoteVersion)
-		ui.Info("Run: skillshare update && skillshare sync")
+		ui.Warning("skillshare skill: %s (update available: %s)", localVersion, remoteVersion)
+		ui.Info("Run: skillshare upgrade --skill && skillshare sync")
+	} else {
+		ui.Success("skillshare skill: %s (up to date)", localVersion)
 	}
 }
 
