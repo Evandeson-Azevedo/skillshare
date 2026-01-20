@@ -15,6 +15,10 @@ Targets:
   claude   ✓ synced   ~/.claude/skills
   codex    ✓ synced   ~/.codex/skills
   cursor   ⚠ 1 diff   ~/.cursor/skills
+
+Version:
+  ✓ CLI: 0.6.2
+  ✓ Skill: 0.7.1 (up to date)
 ```
 
 ## diff

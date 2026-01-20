@@ -1,11 +1,13 @@
 ---
 name: skillshare
-version: 0.7.0
+version: 0.7.1
 description: Syncs skills across AI CLI tools from a single source of truth. Use when asked to "sync skills", "pull skills", "show status", "list skills", "install skill", "initialize skillshare", or manage skill targets.
 argument-hint: "[command] [target] [--dry-run]"
 ---
 
 # Skillshare CLI
+
+> **Shorthand:** `ss` = `skillshare` (e.g., `ss status`, `ss sync`)
 
 ```
 Source: ~/.config/skillshare/skills  ← Edit here (single source of truth)
@@ -65,6 +67,12 @@ ls ~/.claude/skills ~/.cursor/skills 2>/dev/null | head -10
 | No existing skills | `skillshare init --no-copy --all-targets --git` |
 
 **Step 3:** `skillshare status`
+
+**Adding new agents later (AI must use --select):**
+```bash
+skillshare init --discover --select "windsurf,kilocode"   # Non-interactive (AI use this)
+# skillshare init --discover                              # Interactive only (NOT for AI)
+```
 
 See [init.md](references/init.md) for all flags.
 

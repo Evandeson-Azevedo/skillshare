@@ -148,14 +148,18 @@ func getSymlinkStatusDetail(target config.TargetConfig, source, mode string) (st
 }
 
 func checkSkillVersion(cfg *config.Config) {
+	ui.Header("Version")
+
+	// CLI version
+	ui.Success("CLI: %s", version)
+
+	// Skill version
 	skillFile := filepath.Join(cfg.Source, "skillshare", "SKILL.md")
 	localVersion := readSkillVersion(skillFile)
 
 	if localVersion == "" {
-		// No skill or no version - suggest update
-		ui.Header("Skill Version")
-		ui.Warning("skillshare skill not found or missing version")
-		ui.Info("Run: skillshare upgrade --skill")
+		ui.Warning("Skill: not found or missing version")
+		ui.Info("  Run: skillshare upgrade --skill")
 		return
 	}
 
@@ -163,18 +167,16 @@ func checkSkillVersion(cfg *config.Config) {
 	remoteVersion := fetchRemoteSkillVersion()
 	if remoteVersion == "" {
 		// Network error - just show local version
-		ui.Header("Skill Version")
-		ui.Info("skillshare skill: %s", localVersion)
+		ui.Info("Skill: %s", localVersion)
 		return
 	}
 
 	// Compare local vs remote
-	ui.Header("Skill Version")
 	if localVersion != remoteVersion {
-		ui.Warning("skillshare skill: %s (update available: %s)", localVersion, remoteVersion)
-		ui.Info("Run: skillshare upgrade --skill && skillshare sync")
+		ui.Warning("Skill: %s (update available: %s)", localVersion, remoteVersion)
+		ui.Info("  Run: skillshare upgrade --skill && skillshare sync")
 	} else {
-		ui.Success("skillshare skill: %s (up to date)", localVersion)
+		ui.Success("Skill: %s (up to date)", localVersion)
 	}
 }
 

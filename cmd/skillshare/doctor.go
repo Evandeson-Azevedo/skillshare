@@ -73,8 +73,8 @@ func cmdDoctor(args []string) error {
 	// Check backup status
 	checkBackupStatus()
 
-	// Check skill version
-	checkSkillVersionDoctor(cfg)
+	// Check CLI and skill version
+	checkVersionDoctor(cfg)
 
 	// Check for CLI updates
 	checkForUpdates()
@@ -440,14 +440,19 @@ func checkBackupStatus() {
 	}
 }
 
-// checkSkillVersionDoctor checks the skillshare skill version
-func checkSkillVersionDoctor(cfg *config.Config) {
+// checkVersionDoctor checks CLI and skill versions
+func checkVersionDoctor(cfg *config.Config) {
+	ui.Header("Version")
+
+	// CLI version
+	ui.Success("CLI: %s", version)
+
+	// Skill version
 	skillFile := filepath.Join(cfg.Source, "skillshare", "SKILL.md")
 
-	// Read local version
 	file, err := os.Open(skillFile)
 	if err != nil {
-		ui.Warning("Skill: skillshare skill not found")
+		ui.Warning("Skill: not found")
 		ui.Info("  Run: skillshare upgrade --skill")
 		return
 	}
@@ -472,11 +477,11 @@ func checkSkillVersionDoctor(cfg *config.Config) {
 	}
 
 	if localVersion == "" {
-		ui.Warning("Skill: skillshare skill missing version")
+		ui.Warning("Skill: missing version")
 		return
 	}
 
-	ui.Success("Skill: skillshare %s", localVersion)
+	ui.Success("Skill: %s", localVersion)
 }
 
 // checkForUpdates checks if a newer version is available

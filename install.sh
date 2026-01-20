@@ -83,6 +83,13 @@ install() {
   fi
 
   chmod +x "$INSTALL_DIR/$BINARY_NAME"
+
+  # Create shorthand symlink (ss -> skillshare)
+  if [ -w "$INSTALL_DIR" ]; then
+    ln -sf "$INSTALL_DIR/$BINARY_NAME" "$INSTALL_DIR/ss"
+  else
+    sudo ln -sf "$INSTALL_DIR/$BINARY_NAME" "$INSTALL_DIR/ss"
+  fi
 }
 
 # Verify installation
@@ -90,12 +97,13 @@ verify() {
   if command -v "$BINARY_NAME" >/dev/null 2>&1; then
     info ""
     info "Successfully installed skillshare to $INSTALL_DIR/$BINARY_NAME"
+    info "Shorthand 'ss' also available"
     info ""
     "$BINARY_NAME" version
     info ""
     info "Get started:"
-    info "  skillshare init      # Initialize"
-    info "  skillshare --help    # Show help"
+    info "  ss init      # Initialize (or: skillshare init)"
+    info "  ss --help    # Show help"
   else
     warn "Installed but '$BINARY_NAME' not in PATH. Add $INSTALL_DIR to your PATH."
   fi

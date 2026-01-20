@@ -67,6 +67,8 @@ AI reads skillshare skill → runs: skillshare sync
 curl -fsSL https://raw.githubusercontent.com/runkids/skillshare/main/install.sh | sh
 ```
 
+> **Shorthand:** After install, use `ss` instead of `skillshare` (e.g., `ss status`)
+
 ### Homebrew (macOS)
 
 ```bash
@@ -76,8 +78,8 @@ brew install runkids/tap/skillshare
 ### Uninstall
 
 ```bash
-brew uninstall skillshare              # Homebrew
-sudo rm /usr/local/bin/skillshare      # Manual install
+brew uninstall skillshare                               # Homebrew
+sudo rm /usr/local/bin/skillshare /usr/local/bin/ss    # Manual install
 rm -rf ~/.config/skillshare            # Config & data (optional)
 ```
 
