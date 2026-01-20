@@ -2,6 +2,13 @@
 
 Initializes skillshare configuration.
 
+## Key Concept
+
+**Source is always `~/.config/skillshare/skills`** — never a CLI directory like `.claude/skills`.
+
+- `--copy-from claude` = import skills FROM claude INTO source
+- `--copy-from` does NOT change where source is located
+
 ## Copy Source Flags (mutually exclusive)
 
 | Flag | Description |
@@ -28,9 +35,11 @@ Initializes skillshare configuration.
 
 | Flag | Description |
 |------|-------------|
-| `--source <path>` | Custom source directory |
+| `--source <path>` | Custom source directory (**only if user explicitly requests**) |
 | `--remote <url>` | Set git remote (implies `--git`) |
 | `--dry-run` | Preview without making changes |
+
+**AI Note:** Never use `--source` unless the user explicitly asks to change the source location.
 
 ## Examples
 

@@ -42,3 +42,17 @@ Checks configuration health and diagnoses issues.
 ```bash
 skillshare doctor
 ```
+
+## upgrade
+
+Upgrades CLI binary and/or built-in skillshare skill.
+
+```bash
+skillshare upgrade              # Both CLI + skill
+skillshare upgrade --cli        # CLI only
+skillshare upgrade --skill      # Skill only
+skillshare upgrade --force      # Skip confirmation
+skillshare upgrade --dry-run    # Preview
+```
+
+After upgrading skill: `skillshare sync`
