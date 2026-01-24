@@ -30,13 +30,44 @@ type CheckResult struct {
 	UpdateAvailable bool
 }
 
-// getCachePath returns the path to the cache file
-func getCachePath() (string, error) {
+// getCacheDir returns the cache directory, respecting XDG_CACHE_HOME
+func getCacheDir() (string, error) {
+	// XDG Base Directory Specification: use XDG_CACHE_HOME if set
+	if cacheHome := os.Getenv("XDG_CACHE_HOME"); cacheHome != "" {
+		return filepath.Join(cacheHome, "skillshare"), nil
+	}
+	// Default: ~/.cache/skillshare
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(homeDir, ".skillshare", cacheFileName), nil
+	return filepath.Join(homeDir, ".cache", "skillshare"), nil
+}
+
+// getCachePath returns the path to the cache file
+func getCachePath() (string, error) {
+	cacheDir, err := getCacheDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(cacheDir, cacheFileName), nil
+}
+
+// legacyCachePath returns the old cache path for migration cleanup
+func legacyCachePath() string {
+	homeDir, _ := os.UserHomeDir()
+	return filepath.Join(homeDir, ".skillshare", cacheFileName)
+}
+
+// cleanupLegacyCache removes cache from old location
+func cleanupLegacyCache() {
+	legacyPath := legacyCachePath()
+	if _, err := os.Stat(legacyPath); err == nil {
+		os.Remove(legacyPath)
+		// Try to remove parent dir if empty
+		parentDir := filepath.Dir(legacyPath)
+		os.Remove(parentDir) // Fails silently if not empty
+	}
 }
 
 // ClearCache removes the version check cache file
@@ -158,6 +189,9 @@ func Check(currentVersion string) *CheckResult {
 	if currentVersion == "dev" || currentVersion == "" {
 		return nil
 	}
+
+	// Clean up legacy cache location (~/.skillshare/)
+	cleanupLegacyCache()
 
 	cache, _ := loadCache()
 
