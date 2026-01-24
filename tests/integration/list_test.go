@@ -102,7 +102,7 @@ targets: {}
 
 	result.AssertSuccess(t)
 	result.AssertOutputContains(t, "local-skill")
-	result.AssertOutputContains(t, "(local)")
+	result.AssertOutputContains(t, "local")
 	result.AssertOutputContains(t, "installed-skill")
 	result.AssertOutputContains(t, "github.com/example/repo")
 }

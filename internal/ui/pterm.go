@@ -3,11 +3,20 @@ package ui
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/pterm/pterm"
 )
+
+// ansiRegex matches ANSI escape sequences
+var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+// displayWidth returns the visible width of a string (excluding ANSI codes)
+func displayWidth(s string) int {
+	return len(ansiRegex.ReplaceAllString(s, ""))
+}
 
 // IsTTY returns true if stdout is a terminal
 func IsTTY() bool {
@@ -27,20 +36,22 @@ func Box(title string, lines ...string) {
 		return
 	}
 
-	// Find max line length for consistent box width
+	// Find max display width for consistent box width (excludes ANSI codes)
 	maxLen := 0
 	for _, line := range lines {
-		if len(line) > maxLen {
-			maxLen = len(line)
+		w := displayWidth(line)
+		if w > maxLen {
+			maxLen = w
 		}
 	}
 
-	// Pad lines to same length
+	// Pad lines to same display width
 	content := ""
 	for i, line := range lines {
 		padded := line
-		if len(line) < maxLen {
-			padded = line + strings.Repeat(" ", maxLen-len(line))
+		w := displayWidth(line)
+		if w < maxLen {
+			padded = line + strings.Repeat(" ", maxLen-w)
 		}
 		content += padded
 		if i < len(lines)-1 {
@@ -148,20 +159,22 @@ func WarningBox(title string, lines ...string) {
 		return
 	}
 
-	// Find max line length for consistent box width
+	// Find max display width for consistent box width (excludes ANSI codes)
 	maxLen := 0
 	for _, line := range lines {
-		if len(line) > maxLen {
-			maxLen = len(line)
+		w := displayWidth(line)
+		if w > maxLen {
+			maxLen = w
 		}
 	}
 
-	// Pad lines to same length
+	// Pad lines to same display width
 	content := ""
 	for i, line := range lines {
 		padded := line
-		if len(line) < maxLen {
-			padded = line + strings.Repeat(" ", maxLen-len(line))
+		w := displayWidth(line)
+		if w < maxLen {
+			padded = line + strings.Repeat(" ", maxLen-w)
 		}
 		content += padded
 		if i < len(lines)-1 {
@@ -190,20 +203,22 @@ func SummaryBox(title string, items map[string]string) {
 		lines = append(lines, fmt.Sprintf("  %-10s %s", k+":", v))
 	}
 
-	// Find max line length for consistent box width
+	// Find max display width for consistent box width (excludes ANSI codes)
 	maxLen := 0
 	for _, line := range lines {
-		if len(line) > maxLen {
-			maxLen = len(line)
+		w := displayWidth(line)
+		if w > maxLen {
+			maxLen = w
 		}
 	}
 
-	// Pad lines to same length
+	// Pad lines to same display width
 	content := ""
 	for i, line := range lines {
 		padded := line
-		if len(line) < maxLen {
-			padded = line + strings.Repeat(" ", maxLen-len(line))
+		w := displayWidth(line)
+		if w < maxLen {
+			padded = line + strings.Repeat(" ", maxLen-w)
 		}
 		content += padded
 		if i < len(lines)-1 {
@@ -268,7 +283,7 @@ func UpdateNotification(currentVersion, latestVersion string) {
 
 	fmt.Println()
 
-	// Build content lines without ANSI codes (pterm can't calculate width with them)
+	// Build content lines
 	lines := []string{
 		"",
 		fmt.Sprintf("  Version: %s → %s", currentVersion, latestVersion),
@@ -277,20 +292,22 @@ func UpdateNotification(currentVersion, latestVersion string) {
 		"",
 	}
 
-	// Find max line length for consistent box width
+	// Find max display width for consistent box width (excludes ANSI codes)
 	maxLen := 0
 	for _, line := range lines {
-		if len(line) > maxLen {
-			maxLen = len(line)
+		w := displayWidth(line)
+		if w > maxLen {
+			maxLen = w
 		}
 	}
 
-	// Pad lines to same length
+	// Pad lines to same display width
 	content := ""
 	for i, line := range lines {
 		padded := line
-		if len(line) < maxLen {
-			padded = line + strings.Repeat(" ", maxLen-len(line))
+		w := displayWidth(line)
+		if w < maxLen {
+			padded = line + strings.Repeat(" ", maxLen-w)
 		}
 		content += padded
 		if i < len(lines)-1 {

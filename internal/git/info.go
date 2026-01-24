@@ -48,7 +48,7 @@ func Fetch(repoPath string) error {
 
 // GetCommitsBetween returns commits between two refs
 func GetCommitsBetween(repoPath, from, to string) ([]CommitInfo, error) {
-	cmd := exec.Command("git", "log", "--oneline", from+".."+to)
+	cmd := exec.Command("git", "-c", "color.ui=false", "log", "--oneline", from+".."+to)
 	cmd.Dir = repoPath
 	out, err := cmd.Output()
 	if err != nil {

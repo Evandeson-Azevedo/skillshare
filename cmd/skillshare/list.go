@@ -80,33 +80,45 @@ func cmdList(args []string) error {
 	// Display skills
 	if len(skills) > 0 {
 		ui.Header("Installed skills")
-		fmt.Println(strings.Repeat("-", 55))
+
+		// Calculate max name length for alignment (compact mode only)
+		maxNameLen := 0
+		if !verbose {
+			for _, s := range skills {
+				if len(s.Name) > maxNameLen {
+					maxNameLen = len(s.Name)
+				}
+			}
+		}
 
 		for _, s := range skills {
 			if verbose {
-				fmt.Printf("  %s\n", s.Name)
+				// Verbose mode: show full details
+				fmt.Printf("  %s%s%s\n", ui.Cyan, s.Name, ui.Reset)
 				if s.RepoName != "" {
-					fmt.Printf("    Tracked repo: %s\n", s.RepoName)
+					fmt.Printf("    %sTracked repo:%s %s\n", ui.Gray, ui.Reset, s.RepoName)
 				}
 				if s.Source != "" {
-					fmt.Printf("    Source: %s\n", s.Source)
-					fmt.Printf("    Type: %s\n", s.Type)
-					fmt.Printf("    Installed: %s\n", s.InstalledAt)
+					fmt.Printf("    %sSource:%s      %s\n", ui.Gray, ui.Reset, s.Source)
+					fmt.Printf("    %sType:%s        %s\n", ui.Gray, ui.Reset, s.Type)
+					fmt.Printf("    %sInstalled:%s   %s\n", ui.Gray, ui.Reset, s.InstalledAt)
 				} else {
-					fmt.Printf("    Source: (local - no metadata)\n")
+					fmt.Printf("    %sSource:%s      (local - no metadata)\n", ui.Gray, ui.Reset)
 				}
 				fmt.Println()
 			} else {
-				// Determine display suffix
+				// Compact mode: aligned skill name + source info
 				var suffix string
 				if s.RepoName != "" {
-					suffix = fmt.Sprintf("(tracked: %s)", s.RepoName)
+					suffix = fmt.Sprintf("tracked: %s", s.RepoName)
 				} else if s.Source != "" {
 					suffix = abbreviateSource(s.Source)
 				} else {
-					suffix = "(local)"
+					suffix = "local"
 				}
-				fmt.Printf("  %-30s  %s\n", s.Name, suffix)
+				// Use dynamic width formatting with icon
+				format := fmt.Sprintf("  %s→%s %%-%ds  %s%%s%s\n", ui.Cyan, ui.Reset, maxNameLen, ui.Gray, ui.Reset)
+				fmt.Printf(format, s.Name, suffix)
 			}
 		}
 	}
@@ -115,7 +127,6 @@ func cmdList(args []string) error {
 	if len(trackedRepos) > 0 {
 		fmt.Println()
 		ui.Header("Tracked repositories")
-		fmt.Println(strings.Repeat("-", 55))
 
 		for _, repoName := range trackedRepos {
 			repoPath := filepath.Join(cfg.Source, repoName)
@@ -126,12 +137,12 @@ func cmdList(args []string) error {
 					skillCount++
 				}
 			}
-			// Check git status
-			statusStr := "up-to-date"
+			// Check git status and display with appropriate icon
 			if isDirty, _ := isRepoDirty(repoPath); isDirty {
-				statusStr = "has changes"
+				ui.ListItem("warning", repoName, fmt.Sprintf("%d skills, has changes", skillCount))
+			} else {
+				ui.ListItem("success", repoName, fmt.Sprintf("%d skills, up-to-date", skillCount))
 			}
-			fmt.Printf("  %-20s  %d skills, %s\n", repoName, skillCount, statusStr)
 		}
 	}
 
